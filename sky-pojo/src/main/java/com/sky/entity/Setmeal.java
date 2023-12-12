@@ -1,5 +1,6 @@
 package com.sky.entity;
 
+import com.sky.dto.SetmealDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,4 +47,7 @@ public class Setmeal implements Serializable {
     private Long createUser;
 
     private Long updateUser;
+
+    public Setmeal(SetmealDTO setmealDTO) {
+    }
 }

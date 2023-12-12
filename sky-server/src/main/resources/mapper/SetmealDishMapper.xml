@@ -9,6 +9,17 @@
             (#{sd.setmealId},#{sd.dishId},#{sd.name},#{sd.price},#{sd.copies})
         </foreach>
     </insert>
+    <update id="update">
+        update setmeal_dish
+        <set>
+            <if test="setmealId !=null">setmeal_id = #{setmealId},</if>
+            <if test="dishId !=null">dish_id = #{dishId},</if>
+            <if test="name !=null">name = #{name},</if>
+            <if test="price !=null">price = #{price},</if>
+            <if test="copies !=null">copies = #{copies}</if>
+        </set>
+        where id = #{id}
+    </update>
 
     <select id="getSetmealIdsByDishIds" resultType="java.lang.Long">
         select setmeal_id
@@ -25,4 +36,5 @@
              #{id}
         </foreach>
     </delete>
+
 </mapper>

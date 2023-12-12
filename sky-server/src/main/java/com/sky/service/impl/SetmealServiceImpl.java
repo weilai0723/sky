@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
-import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
@@ -38,7 +37,7 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     public void save(SetmealDTO setmealDTO) {
-        Setmeal setmeal = new Setmeal();
+        Setmeal setmeal = new Setmeal(setmealDTO);
         BeanUtils.copyProperties(setmealDTO,setmeal);
         setmealMapper.insert(setmeal);
         List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
@@ -76,6 +75,41 @@ public class SetmealServiceImpl implements SetmealService {
         }else {
             throw new DeletionNotAllowedException(MessageConstant.DELETE_FAILED);
         }
+    }
+
+    /**
+     * 查询套餐及套餐菜品
+     * @param id
+     * @return
+     */
+    @Override
+    public SetmealVO selectById(Long id) {
+        List<SetmealDish> setmealDishes = setmealDishMapper.selectById(id);
+        SetmealVO setmealVO= setmealMapper.selectById(id);
+        setmealVO.setSetmealDishes(setmealDishes);
+        return setmealVO;
+    }
+
+    /**
+     * 修改套餐及套餐菜品
+     * @param setmealDTO
+     */
+    @Override
+    @Transactional
+    public void update(SetmealDTO setmealDTO) {
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO,setmeal);
+        setmealMapper.update(setmeal);
+        Long id = setmeal.getId();
+        setmealDishMapper.delete(id);
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+        if (setmealDishes != null && setmealDishes.size() > 0){
+            for (SetmealDish setmealDish : setmealDishes) {
+                setmealDish.setSetmealId(setmeal.getId());
+            }
+        }
+        setmealDishMapper.insert(setmealDishes);
+
     }
 
 }

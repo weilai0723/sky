@@ -119,23 +119,46 @@ public class SetmealServiceImpl implements SetmealService {
     @Autowired
     private DishMapper dishMapper;
     @Override
+    @Transactional
     public void setStatus(Long id, Integer status) {
-        List<SetmealDish> setmealDishes = setmealDishMapper.getSetmealDish(id);
-        if (setmealDishes != null && setmealDishes.size() > 0) {
-            for (SetmealDish setmealDish : setmealDishes) {
-                Long dishId = setmealDish.getDishId();
-                Dish dish = dishMapper.getById(dishId);
-                if (dish.getStatus() == StatusConstant.ENABLE || dish.getStatus() == StatusConstant.DISABLE) {
-                    //开启
-                    setmealMapper.setStatus(id, status);
-                } else {
-                    //关闭
-                    throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+//        if (status == StatusConstant.DISABLE){
+//            setmealMapper.setStatus(id, status);
+//        }
+//        List<SetmealDish> setmealDishes = setmealDishMapper.getSetmealDish(id);
+//        if (setmealDishes != null && setmealDishes.size() > 0) {
+//            for (SetmealDish setmealDish : setmealDishes) {
+//                Long dishId = setmealDish.getDishId();
+//                Dish dish = dishMapper.getById(dishId);
+//                if (dish.getStatus() == StatusConstant.ENABLE) {
+//                    //开启
+//                    setmealMapper.setStatus(id, status);
+//                } else {
+//                    //关闭
+//                    throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+//                }
+//            }
+//        } else {
+//            throw new SetmealEnableFailedException("菜品为空");
+//        }
+        Setmeal setmeal = Setmeal.builder()
+                .id(id)
+                .status(status)
+                .build();
+        setmealMapper.update(setmeal);
+        if (status == StatusConstant.ENABLE){
+            List<SetmealDish> setmealDishes = setmealDishMapper.getSetmealDish(id);
+            if (setmealDishes != null && setmealDishes.size() > 0) {
+                for (SetmealDish setmealDish : setmealDishes) {
+                    Long dishId = setmealDish.getDishId();
+                    Dish dish = dishMapper.getById(dishId);
+                    if (dish.getStatus() == StatusConstant.DISABLE) {
+                        //关闭
+                        throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+                    }
                 }
             }
-        } else {
-            throw new SetmealEnableFailedException("菜品为空");
         }
+
     }
 
 }

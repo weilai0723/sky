@@ -70,4 +70,10 @@ public class DishController {
         return Result.success(list);
     }
 
+    @PostMapping("/status/{status}")
+    public Result setStatus(@PathVariable Integer status,Long id){
+        dishService.setStatus(status,id);
+        return Result.success();
+    }
+
 }

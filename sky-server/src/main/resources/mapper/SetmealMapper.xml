@@ -24,6 +24,12 @@
         </set>
         where id = #{id}
     </update>
+    <update id="setStatus">
+        update setmeal set
+        <if test="status == 0">status = 0</if>
+        <if test="status == 1">status = 1</if>
+        where id = #{id}
+    </update>
 
 
     <delete id="deleteById">

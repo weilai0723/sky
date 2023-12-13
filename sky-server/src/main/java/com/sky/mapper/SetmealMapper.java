@@ -8,6 +8,7 @@ import com.sky.enumeration.OperationType;
 import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -33,4 +34,5 @@ public interface SetmealMapper {
     SetmealVO selectById(Long id);
 
     void update(Setmeal setmealDTO);
+    void setStatus(Long id, Integer status);
 }

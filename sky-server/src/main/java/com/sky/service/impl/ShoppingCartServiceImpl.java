@@ -117,7 +117,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             Integer number = shoppingCart.getNumber();
             if (number ==1){
                 //  删除一条
-                shoppingCartMapper.dedleteShoppingCartById(shoppingCart);
+                shoppingCartMapper.deleteShoppingCartById(shoppingCart);
             } else {
                 //更新
                 shoppingCart.setNumber(shoppingCart.getNumber()-1);
@@ -125,7 +125,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             }
 
 //            if (cart.getNumber() == 0){
-//                shoppingCartMapper.dedleteShoppingCartById(cart);
+//                shoppingCartMapper.deleteShoppingCartById(cart);
 //            } else {
 //                shoppingCartMapper.updateNumberById(cart);
 //            }

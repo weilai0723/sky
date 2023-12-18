@@ -68,4 +68,6 @@ public interface OrderMapper {
      * @return
      */
     Double sumByMap(Map map);
+
+    Integer getByTimeAndStatus(LocalDateTime beginTime, LocalDateTime endTime,Integer status);
 }

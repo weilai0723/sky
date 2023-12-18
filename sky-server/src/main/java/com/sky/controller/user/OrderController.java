@@ -44,6 +44,7 @@ public class OrderController {
         log.info("订单支付：{}", ordersPaymentDTO);
         OrderPaymentVO orderPaymentVO = orderService.payment(ordersPaymentDTO);
         log.info("生成预支付交易单：{}", orderPaymentVO);
+        orderService.paySuccess(ordersPaymentDTO.getOrderNumber());//调支付成功的方法
         return Result.success(orderPaymentVO);
     }
     /**
@@ -97,6 +98,13 @@ public class OrderController {
     @ApiOperation("再来一单")
     public Result repetition(@PathVariable Long id) {
         orderService.repetition(id);
+        return Result.success();
+    }
+
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("客户催单")
+    public Result reminder(@PathVariable("id") Long id){
+        orderService.remonder(id);
         return Result.success();
     }
 

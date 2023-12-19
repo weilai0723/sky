@@ -145,19 +145,18 @@ public class ReportServiceImpl implements ReportService {
         for (Integer count : orderCountList) {
             totalOrderCount += count;
         }
-        Double orderCompletionRate =0.5;
+        Double orderCompletionRate =(double) validOrderCount/totalOrderCount ;
 
 
-        OrderReportVO orderReportVO = new OrderReportVO();
-        orderReportVO.setDateList(dateList.toString());
-        orderReportVO.setValidOrderCountList(validOrderCountList.toString());
-        orderReportVO.setValidOrderCountList(orderCountList.toString());
-        orderReportVO.setTotalOrderCount(totalOrderCount);
-        orderReportVO.setValidOrderCount(validOrderCount);
-        orderReportVO.setOrderCompletionRate(orderCompletionRate);
+//        OrderReportVO orderReportVO = new OrderReportVO();
+//        orderReportVO.setDateList(StringUtils.join(dateList,",");
+//        orderReportVO.setValidOrderCountList(StringUtils.join(validOrderCountList,",");
+//        orderReportVO.setOrderCountList(StringUtils.join(orderCountList,",");
+//        orderReportVO.setTotalOrderCount(totalOrderCount);
+//        orderReportVO.setValidOrderCount(validOrderCount);
+//        orderReportVO.setOrderCompletionRate(orderCompletionRate);
 
-        return orderReportVO;
-//                OrderReportVO
+//        return OrderReportVO
 //                .builder()
 //                .dateList(StringUtils.join(dateList,",")
 //                .orderCompletionRate(validOrderCount/totalOrderCount)
@@ -166,5 +165,13 @@ public class ReportServiceImpl implements ReportService {
 //                .validOrderCount(validOrderCount)
 //                .validOrderCountList(StringUtils.join(validOrderCountList,",")
 //                .build();
+        return OrderReportVO.builder()
+                .dateList(StringUtils.join(dateList,","))
+                .orderCompletionRate(orderCompletionRate)
+                .orderCountList(StringUtils.join(orderCountList,","))
+                .totalOrderCount(totalOrderCount)
+                .validOrderCount(validOrderCount)
+                .validOrderCountList(StringUtils.join(validOrderCountList,","))
+                .build();
     }
 }

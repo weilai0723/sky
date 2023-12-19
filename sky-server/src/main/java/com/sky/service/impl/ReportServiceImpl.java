@@ -1,10 +1,12 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -33,6 +36,7 @@ public class ReportServiceImpl implements ReportService {
 
     /**
      * 营业额统计
+     *
      * @param begin
      * @param end
      */
@@ -43,7 +47,7 @@ public class ReportServiceImpl implements ReportService {
 
         dateList.add(begin);
 
-        while (!begin.equals(end)){
+        while (!begin.equals(end)) {
             begin = begin.plusDays(1);
             dateList.add(begin);
         }
@@ -55,21 +59,28 @@ public class ReportServiceImpl implements ReportService {
             LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
 
             Map map = new HashMap();
-            map.put("begin",beginTime);
-            map.put("end",endTime);
+            map.put("begin", beginTime);
+            map.put("end", endTime);
             map.put("status", Orders.COMPLETED);
-            Double tunaver= orderMapper.sumByMap(map);
+            Double tunaver = orderMapper.sumByMap(map);
             tunaver = tunaver == null ? 0.0 : tunaver;//判断非空
             turnoerList.add(tunaver);
         }
 
         return TurnoverReportVO
                 .builder()
-                .dateList(StringUtils.join(dateList,","))
-                .turnoverList(StringUtils.join(turnoerList,","))
+                .dateList(StringUtils.join(dateList, ","))
+                .turnoverList(StringUtils.join(turnoerList, ","))
                 .build();
     }
 
+    /**
+     * 用户统计
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
     @Override
     public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
         //当前集合用于存放从begin到end的天数数据
@@ -77,7 +88,7 @@ public class ReportServiceImpl implements ReportService {
 
         dateList.add(begin);
 
-        while (!begin.equals(end)){
+        while (!begin.equals(end)) {
             begin = begin.plusDays(1);
             dateList.add(begin);
         }
@@ -92,22 +103,30 @@ public class ReportServiceImpl implements ReportService {
 //            Map map = new HashMap();
 //            map.put("begin",beginTime);
 //            map.put("end",endTime);
-            Integer newUser= userMapper.getByTime(beginTime,endTime);
-            newUser = newUser == null ? 0: newUser;//判断非空
+            Integer newUser = userMapper.getByTime(beginTime, endTime);
+            newUser = newUser == null ? 0 : newUser;//判断非空
             userList.add(newUser);
-            Integer users= userMapper.getByTime(null,endTime);
+            Integer users = userMapper.getByTime(null, endTime);
             users = users == null ? 0 : users;//判断非空
             usersList.add(users);
         }
 
         return UserReportVO
                 .builder()
-                .dateList(StringUtils.join(dateList,","))
-                .newUserList(StringUtils.join(userList,","))
-                .totalUserList(StringUtils.join(usersList,","))
+                .dateList(StringUtils.join(dateList, ","))
+                .newUserList(StringUtils.join(userList, ","))
+                .totalUserList(StringUtils.join(usersList, ","))
                 .build();
     }
 
+
+    /**
+     * 订单统计
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
     @Override
     public OrderReportVO getOrderStatistics(LocalDate begin, LocalDate end) {
         //当前集合用于存放从begin到end的天数数据
@@ -115,7 +134,7 @@ public class ReportServiceImpl implements ReportService {
 
         dateList.add(begin);
 
-        while (!begin.equals(end)){
+        while (!begin.equals(end)) {
             begin = begin.plusDays(1);
             dateList.add(begin);
         }
@@ -130,10 +149,10 @@ public class ReportServiceImpl implements ReportService {
 //            map.put("begin",beginTime);
 //            map.put("end",endTime);
             Integer status = Orders.COMPLETED;
-            Integer validOrderCount= orderMapper.getByTimeAndStatus(beginTime,endTime,status);
-            validOrderCount = validOrderCount == null ? 0: validOrderCount;//判断非空
+            Integer validOrderCount = orderMapper.getByTimeAndStatus(beginTime, endTime, status);
+            validOrderCount = validOrderCount == null ? 0 : validOrderCount;//判断非空
             validOrderCountList.add(validOrderCount);
-            Integer orderCount= orderMapper.getByTimeAndStatus(beginTime,endTime,null);
+            Integer orderCount = orderMapper.getByTimeAndStatus(beginTime, endTime, null);
             orderCount = orderCount == null ? 0 : orderCount;//判断非空
             orderCountList.add(orderCount);
         }
@@ -145,7 +164,7 @@ public class ReportServiceImpl implements ReportService {
         for (Integer count : orderCountList) {
             totalOrderCount += count;
         }
-        Double orderCompletionRate =(double) validOrderCount/totalOrderCount ;
+        Double orderCompletionRate = (double) validOrderCount / totalOrderCount;
 
 
 //        OrderReportVO orderReportVO = new OrderReportVO();
@@ -166,12 +185,45 @@ public class ReportServiceImpl implements ReportService {
 //                .validOrderCountList(StringUtils.join(validOrderCountList,",")
 //                .build();
         return OrderReportVO.builder()
-                .dateList(StringUtils.join(dateList,","))
+                .dateList(StringUtils.join(dateList, ","))
                 .orderCompletionRate(orderCompletionRate)
-                .orderCountList(StringUtils.join(orderCountList,","))
+                .orderCountList(StringUtils.join(orderCountList, ","))
                 .totalOrderCount(totalOrderCount)
                 .validOrderCount(validOrderCount)
-                .validOrderCountList(StringUtils.join(validOrderCountList,","))
+                .validOrderCountList(StringUtils.join(validOrderCountList, ","))
                 .build();
     }
+
+    /**
+     * TOP10统计
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public SalesTop10ReportVO getSalesTop10(LocalDate begin, LocalDate end) {
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+        List<GoodsSalesDTO> top10 = orderMapper.getSalesTop10(beginTime, endTime);
+//        List<String> name = new ArrayList<>();
+//        List<String> number = new ArrayList<>();
+//        for (GoodsSalesDTO goodsSalesDTO : top10) {
+//            name.add(goodsSalesDTO.getName());
+//            number.add(String.valueOf(goodsSalesDTO.getNumber()));
+//        }
+//        SalesTop10ReportVO salesTop10ReportVO = new SalesTop10ReportVO();
+//        salesTop10ReportVO.setNameList(StringUtils.join(name,","));
+//        salesTop10ReportVO.setNumberList(StringUtils.join(number,","));
+
+        String nameList = StringUtils.join(top10.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList()),",");
+        String numberList = StringUtils.join(top10.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList()),",");
+        return SalesTop10ReportVO.builder()
+                .nameList(nameList)
+                .numberList(numberList)
+                .build();
+    }
+
+
+
 }

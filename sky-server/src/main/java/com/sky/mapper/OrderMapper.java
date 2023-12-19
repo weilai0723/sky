@@ -74,4 +74,6 @@ public interface OrderMapper {
 
 
     List<GoodsSalesDTO> getSalesTop10(LocalDateTime beginTime, LocalDateTime endTime);
+
+    Integer countByMap(Map map);
 }
